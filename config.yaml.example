@@ -1,0 +1,48 @@
+# RSS -> Discord 通知Bot 設定ファイル
+# このファイルを config.yaml としてコピーし、値を書き換えてください。
+#   cp config.yaml.example config.yaml
+
+# DiscordのWebhook URL(全フィード共通のデフォルト)
+# サーバー設定 > 連携サービス > ウェブフック から発行できます。
+# 下の feeds 側で webhook_url を個別指定したフィードは、そちらが優先されます。
+# 全フィードで個別にwebhook_urlを指定する場合は、この行自体を省略しても構いません。
+webhook_url: "https://discord.com/api/webhooks/XXXXXXXXXXXX/YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+
+# RSSフィードの取得に失敗した(サイトにアクセスできない、解析できない等)場合の通知先。
+# 記事投稿用のWebhook(上のwebhook_url等)とは別のチャンネル/Webhookを指定することを想定。
+# 省略した場合は、失敗してもDiscordには通知されずログにのみ記録されます。
+error_webhook_url: "https://discord.com/api/webhooks/AAAAAAAAAAAA/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+
+# true にすると、DBに1件も記録がないフィード(=初回実行)では
+# Discordへの通知を行わず、現在の記事をすべて「既読」としてDBに記録するだけになります。
+# 2回目以降の実行からは通常どおり新着・更新を検知して通知します。
+# フィードごとに feeds: 側で skip_initial_notify を指定すると、この全体設定より優先されます。
+skip_initial_notify: false
+
+# 監視するRSS/Atomフィードの一覧
+feeds:
+  - name: "サイトAのお知らせ"
+    url: "https://example.com/feed.xml"
+    # このフィードの記事だけ専用のWebhook(=aのチャンネル)に投稿する場合
+    webhook_url: "https://discord.com/api/webhooks/CCCCCCCCCCCC/DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+  - name: "サイトBのブログ"
+    url: "https://example.org/rss"
+    # このフィードの記事だけ専用のWebhook(=bのチャンネル)に投稿する場合
+    webhook_url: "https://discord.com/api/webhooks/EEEEEEEEEEEE/FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+    # このフィードだけ初回通知をスキップしたい場合(全体設定より優先されます)
+    # skip_initial_notify: true
+  - name: "サイトCのニュース"
+    url: "https://example.net/atom.xml"
+    # webhook_url を省略すると、上のconfig直下の webhook_url(デフォルト)が使われます
+
+# HTTPリクエスト時のUser-Agent(任意)
+user_agent: "RSSDiscordBot/1.0 (+https://example.com)"
+
+# SQLiteデータベースの保存先
+db_path: "./data/rss_discord_bot.db"
+
+# ログファイルの保存先(自動でローテーションされます)
+log_path: "./logs/rss_discord_bot.log"
+
+# 多重起動防止用ロックファイルの保存先
+lock_path: "./rss_discord_bot.lock"
