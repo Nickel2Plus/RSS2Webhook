@@ -1,6 +1,3 @@
-# RSS2Webhook
-RSS Feed send to Webhook(Discord) / Made with Claude AI
-
 # RSS -> Discord 通知Bot
 
 RSSフィードを定期的にチェックし、新着記事および更新された記事をDiscordのWebhookに投稿するBotです。
