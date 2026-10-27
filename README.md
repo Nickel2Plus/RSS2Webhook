@@ -8,7 +8,7 @@ RSSフィードを定期的にチェックし、新着記事および更新さ�
 ```
 rss-discord-bot/
 ├── rss_discord_bot.py    # Bot本体(1回実行して終了するバッチスクリプト)
-├── config.yaml.example   # 設定ファイルのサンプル
+├── config(example).yaml  # 設定ファイルのサンプル
 ├── requirements.txt      # 依存パッケージ
 └── README.md
 ```
@@ -58,7 +58,7 @@ sudo su - rssbot
 ```bash
 mkdir -p ~/rss-discord-bot
 cd ~/rss-discord-bot
-# ここに rss_discord_bot.py, config.yaml.example, requirements.txt を配置
+# ここに rss_discord_bot.py, config(example).yaml, requirements.txt を配置
 ```
 
 ### 1-4. 仮想環境の作成と依存パッケージのインストール
@@ -74,7 +74,7 @@ pip install -r requirements.txt
 ### 1-5. 設定ファイルの作成
 
 ```bash
-cp config.yaml.example config.yaml
+cp config(example).yaml config.yaml
 vi config.yaml
 ```
 
