@@ -131,6 +131,15 @@ error_webhook_url: "https://discord.com/api/webhooks/.../エラー通知専用�
 ```
 
 - `error_webhook_url` は全フィード共通で1つだけ設定する想定です(運用監視用チャンネル等)。
+- 追加で `error_webhook_url_silent` を設定すると、同じエラー通知を**@silent(プッシュ通知・通知音なし)**で
+  もう1つの宛先にも送れます。メッセージはチャンネルに表示されますが、通知は鳴りません。
+  内部的にはDiscordのメッセージフラグ `SUPPRESS_NOTIFICATIONS`(4096)を付けて送信しています。
+  `error_webhook_url` と併用すれば両方に、どちらか一方だけの設定でもそれぞれ動作します。
+
+  ```yaml
+  error_webhook_url: "https://discord.com/api/webhooks/.../通常のエラー通知"
+  error_webhook_url_silent: "https://discord.com/api/webhooks/.../silentで送る記録用"
+  ```
 - 未設定の場合、取得失敗時はDiscordには通知されず、ログファイルにのみ記録されます。
 - 1つのフィードの取得に失敗しても、他のフィードの処理・通知は継続されます。
 - エラー通知には フィード名・URL・エラー内容(タイムアウト、HTTPエラー、解析エラー等)が含まれます。

@@ -13,6 +13,11 @@ webhook_url: "https://discord.com/api/webhooks/XXXXXXXXXXXX/YYYYYYYYYYYYYYYYYYYY
 # 省略した場合は、失敗してもDiscordには通知されずログにのみ記録されます。
 error_webhook_url: "https://discord.com/api/webhooks/AAAAAAAAAAAA/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
 
+# 取得失敗を「@silent(通知音・プッシュ通知なし)」で送る追加の通知先(任意)。
+# error_webhook_url と併用すると、失敗時に両方へ送られます(片方だけの設定でも可)。
+# 例: 通常用はスマホに通知が来るチャンネル、こちらは記録用のログチャンネル、など。
+error_webhook_url_silent: "https://discord.com/api/webhooks/GGGGGGGGGGGG/HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
+
 # true にすると、DBに1件も記録がないフィード(=初回実行)では
 # Discordへの通知を行わず、現在の記事をすべて「既読」としてDBに記録するだけになります。
 # 2回目以降の実行からは通常どおり新着・更新を検知して通知します。

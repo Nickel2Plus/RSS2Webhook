@@ -290,8 +290,13 @@ def send_error_notification(
     feed_url: str,
     error_message: str,
     max_retries: int = 3,
+    silent: bool = False,
 ) -> None:
-    """RSS取得・解析に失敗したことを、記事通知用とは別のWebhookに知らせる。"""
+    """RSS取得・解析に失敗したことを、記事通知用とは別のWebhookに知らせる。
+
+    silent=True の場合、Discordの「@silent」相当(SUPPRESS_NOTIFICATIONSフラグ=4096)を付けて
+    送信し、メッセージは表示されるがプッシュ通知・通知音は鳴らない。
+    """
     embed = {
         "title": "RSSフィードの取得に失敗しました",
         "color": 0xE74C3C,  # 赤
@@ -303,6 +308,8 @@ def send_error_notification(
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     payload = {"embeds": [embed]}
+    if silent:
+        payload["flags"] = 4096  # SUPPRESS_NOTIFICATIONS (= @silent)
 
     for attempt in range(1, max_retries + 1):
         try:
@@ -389,7 +396,7 @@ def process_feed(
     config: dict,
     feed_conf: dict,
     user_agent: str,
-    error_webhook_url: Optional[str],
+    error_targets: list[tuple[str, bool]],
     default_skip_initial: bool = False,
 ) -> None:
     feed_url = feed_conf["url"]
@@ -400,9 +407,10 @@ def process_feed(
         articles = parse_feed(feed_url, user_agent)
     except Exception as e:
         logger.error("フィード取得に失敗しました [%s]: %s", feed_name, e)
-        if error_webhook_url:
+        # 通常用・@silent用など、設定された全てのエラー通知先に送る(1つ失敗しても他は送る)
+        for target_url, silent in error_targets:
             try:
-                send_error_notification(error_webhook_url, feed_name, feed_url, str(e))
+                send_error_notification(target_url, feed_name, feed_url, str(e), silent=silent)
             except Exception as notify_err:
                 logger.error("エラー通知の送信自体に失敗しました [%s]: %s", feed_name, notify_err)
         return
@@ -480,7 +488,12 @@ def main() -> int:
     try:
         db_path = config.get("db_path", "./rss_discord_bot.db")
         store = ArticleStore(db_path)
-        error_webhook_url = config.get("error_webhook_url")  # 取得失敗通知専用(任意)
+        # 取得失敗通知の送信先(任意)。通常通知用と、@silent(通知音なし)用の2系統
+        error_targets: list[tuple[str, bool]] = []
+        if config.get("error_webhook_url"):
+            error_targets.append((config["error_webhook_url"], False))
+        if config.get("error_webhook_url_silent"):
+            error_targets.append((config["error_webhook_url_silent"], True))
         user_agent = config.get("user_agent", "RSSDiscordBot/1.0")
 
         # CLI引数(--skip-initial-notify)が指定されていればconfig.yamlより優先する
@@ -494,7 +507,7 @@ def main() -> int:
                 config,
                 feed_conf,
                 user_agent,
-                error_webhook_url,
+                error_targets,
                 default_skip_initial,
             )
 
